@@ -24,7 +24,9 @@ public class ByteBufTest {
 //        int i = buffer.readInt();
 //        System.out.println(i);
 //        System.out.println("readerIndex: " + buffer.readerIndex());
-        testSlice(buffer);
+//        testSlice(buffer);
+
+        testByte();
     }
 
     /**
@@ -41,7 +43,17 @@ public class ByteBufTest {
 
         System.out.println("byteBuf[readerIndex]: " + byteBuf.readerIndex());
         System.out.println("slice[readerIndex]: " + slice.readerIndex());
+        System.out.println("byteBuf[readableBytes读数据之前:" + byteBuf.readableBytes());
+        slice.readInt();
+        System.out.println("byteBuf[readableBytes]读数据之后:" + byteBuf.readableBytes());
 
+        slice.resetReaderIndex(); // 重置读指针
+        System.out.println("重置指针以后当前可读的字节数:" + slice.readableBytes()); // 应该为12字节
 
+    }
+
+    private static void testByte() {
+        String s = String.valueOf(0xcafebabe);
+        System.out.println(s);
     }
 }

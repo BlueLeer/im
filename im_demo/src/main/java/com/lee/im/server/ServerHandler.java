@@ -41,6 +41,8 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
     }
 
     private boolean validate(LoginRequestPacket loginRequestPacket) {
+        System.out.println("用户名:" + loginRequestPacket.getUsername());
+        System.out.println("密码:" + loginRequestPacket.getPassword());
         return true;
     }
 }
