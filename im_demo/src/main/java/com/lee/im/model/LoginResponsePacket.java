@@ -6,7 +6,7 @@ import lombok.Data;
 /**
  * @author WangLe
  * @date 2019/6/17 16:36
- * @description
+ * @description 登录响应通信数据实体
  */
 @Data
 public class LoginResponsePacket extends Packet {

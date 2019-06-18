@@ -1,12 +1,8 @@
 package com.lee.im.transcoding;
 
-import com.lee.im.constant.Command;
 import com.lee.im.constant.SerializerAlgorithm;
-import com.lee.im.model.LoginRequestPacket;
-import com.lee.im.model.LoginResponsePacket;
-import com.lee.im.model.Packet;
+import com.lee.im.model.*;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufAllocator;
 
 /**
  * @author WangLe
@@ -82,14 +78,19 @@ public class PacketTransCode {
 
         // 根据不同的指令,不同的序列化算法,将字节数据解析成对应的java对象
         Class<? extends Packet> requestType = getRequestType(command);
-        Serializer serializer = getSerilizer(serializerAlgorithm);
+        Serializer serializer = getSerializer(serializerAlgorithm);
 
         Packet packet = serializer.deserialize(requestType, contents);
         return packet;
     }
 
-    private Serializer getSerilizer(byte serializerAlgorithm) {
-        Serializer serializer = null;
+    /**
+     * 根据序列化算法的代码获取序列化器
+     * @param serializerAlgorithm
+     * @return
+     */
+    private Serializer getSerializer(byte serializerAlgorithm) {
+        Serializer serializer;
         switch (serializerAlgorithm) {
             case SerializerAlgorithm.JSON: // 客户端登陆
                 serializer = new JsonSerializer();
@@ -101,8 +102,13 @@ public class PacketTransCode {
         return serializer;
     }
 
+    /**
+     * 根据指令相关的枚举值获取志林对应的类型
+     * @param command
+     * @return
+     */
     private Class<? extends Packet> getRequestType(byte command) {
-        Class<? extends Packet> clazz = null;
+        Class<? extends Packet> clazz;
         switch (command) {
             case 1: // 客户端登陆
                 clazz = LoginRequestPacket.class;
@@ -111,6 +117,10 @@ public class PacketTransCode {
                 clazz = LoginResponsePacket.class;
                 break;
             case 3:
+                clazz = MessageRequestPacket.class;
+                break;
+            case 4:
+                clazz = MessageResponsePacket.class;
                 break;
             default:
                 clazz = null;
@@ -119,6 +129,5 @@ public class PacketTransCode {
 
         return clazz;
     }
-
 
 }

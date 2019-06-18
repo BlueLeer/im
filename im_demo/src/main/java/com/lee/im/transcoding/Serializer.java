@@ -10,7 +10,7 @@ public interface Serializer {
     /**
      * json 序列化
      */
-    byte JSON_SERIALIZER = 1;
+    byte JSON_SERIALIZER_DEFAULT = 1;
 
     /**
      * 默认的序列化器

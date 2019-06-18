@@ -2,11 +2,17 @@ package com.lee.im.server;
 
 import com.lee.im.model.LoginRequestPacket;
 import com.lee.im.model.LoginResponsePacket;
+import com.lee.im.model.MessageRequestPacket;
 import com.lee.im.model.Packet;
 import com.lee.im.transcoding.PacketTransCode;
+import com.lee.im.util.LoginUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelId;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author WangLe
@@ -14,6 +20,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
  * @description
  */
 public class ServerHandler extends ChannelInboundHandlerAdapter {
+
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         ByteBuf byteBuf = (ByteBuf) msg;
@@ -29,6 +36,7 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
             if (validate(loginRequestPacket)) {
                 responsePacket.setCode("success");
                 responsePacket.setMsg("登陆成功");
+
             } else {
                 responsePacket.setCode("fail");
                 responsePacket.setMsg("登陆失败");
@@ -37,6 +45,9 @@ public class ServerHandler extends ChannelInboundHandlerAdapter {
             ByteBuf responseByteBuf = PacketTransCode.getInstance().encode(ctx.alloc().ioBuffer(), responsePacket);
             // 向客户端写入响应消息
             ctx.channel().writeAndFlush(responseByteBuf);
+        } else if (packet instanceof MessageRequestPacket) {
+            MessageRequestPacket requestPacket = (MessageRequestPacket) packet;
+            System.out.println("客户端发来消息: " + requestPacket.getMessage());
         }
     }
 

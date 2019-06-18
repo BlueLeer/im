@@ -4,6 +4,7 @@ import com.lee.im.model.LoginRequestPacket;
 import com.lee.im.model.LoginResponsePacket;
 import com.lee.im.model.Packet;
 import com.lee.im.transcoding.PacketTransCode;
+import com.lee.im.util.LoginUtil;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -46,6 +47,10 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
 
             System.out.println("服务端返回的登录状态码:" + responsePacket.getCode());
             System.out.println("服务端返回的登录消息内容:" + responsePacket.getMsg());
+
+            if (responsePacket.getCode().equals("success")) {
+                LoginUtil.markAsLogin(ctx.channel());
+            }
         }
     }
 }

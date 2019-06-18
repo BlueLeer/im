@@ -17,4 +17,15 @@ public final class Command {
      */
     public static final Byte LOGIN_RESPONSE = 2;
 
+    /**
+     * 客户端发送至服务器的消息指令
+     */
+    public static final Byte MESSAGE_REQUEST = 3;
+
+    /**
+     * 服务器发送至客户端的消息指令
+     */
+    public static final Byte MESSAGE_RESPONSE = 4;
+
+
 }
