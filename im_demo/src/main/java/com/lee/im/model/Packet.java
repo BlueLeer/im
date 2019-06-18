@@ -6,7 +6,7 @@ import lombok.Data;
  * @author WangLe
  * @date 2019/6/17 14:09
  * @description
- * @Data包含了下面几个注解的功能:@ToString @Getter @Setter @EqualsAndHashCode @NoArgsConstructor
+ * \@Data包含了下面几个注解的功能:@ToString @Getter @Setter @EqualsAndHashCode @NoArgsConstructor
  *
  * 所有指令数据包的 基类,它包含了协议的版本和获取指令的方式
  * <p>

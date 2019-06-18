@@ -56,6 +56,9 @@ public class NIOServer {
                             public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
                                 ByteBuf byteBuf = (ByteBuf) msg;
                                 System.out.println("服务端读取到的数据: " + byteBuf.toString(Charset.forName("utf-8")));
+
+                                // 调用这个方法以后,数据将会继续往下传递,会传递给下一个绑定的ChannelInboundHandlerAdapter中的channelRead方法中去
+                                super.channelRead(ctx, msg);
                             }
 
                             @Override
@@ -63,6 +66,13 @@ public class NIOServer {
                                 ByteBuf buffer = ctx.alloc().buffer();
                                 buffer.writeBytes("Hello Client!".getBytes(Charset.forName("utf-8")));
                                 ctx.channel().writeAndFlush(buffer);
+                            }
+                        });
+
+                        channel.pipeline().addLast(new ChannelInboundHandlerAdapter() {
+                            @Override
+                            public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+                                System.out.println("我是下一个ChannelInboundHandlerAdapter!");
                             }
                         });
 

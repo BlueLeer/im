@@ -21,7 +21,9 @@ import java.util.concurrent.TimeUnit;
  */
 public class NIOClient {
 
-    // 最大重连次数--5次
+    /**
+     * 最大重连次数--5次
+     */
     private static final int MAX_RETRY = 5;
 
     public static void main(String[] args) {
@@ -31,11 +33,13 @@ public class NIOClient {
         bootstrap
                 // 指定线程模型
                 .group(clientGroup)
-                .attr(AttributeKey.newInstance("date"),new Date())
+                .attr(AttributeKey.newInstance("date"), new Date())
                 // 指定IO模型
                 .channel(NioSocketChannel.class)
-                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS,1000) // 设置连接超时时间
-                .option(ChannelOption.SO_KEEPALIVE,true) // 是否开启TCP底层心跳机制
+                // 设置连接超时时间
+                .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 1000)
+                // 是否开启TCP底层心跳机制
+                .option(ChannelOption.SO_KEEPALIVE, true)
                 // IO处理逻辑
                 .handler(new ChannelInitializer<NioSocketChannel>() {
                     @Override
@@ -57,7 +61,7 @@ public class NIOClient {
                             }
                         });
 
-                        System.out.println("date: "+channel.attr(AttributeKey.valueOf("date")).get().toString());
+                        System.out.println("date: " + channel.attr(AttributeKey.valueOf("date")).get().toString());
                     }
                 });
         connect(bootstrap, "127.0.0.1", 8000, MAX_RETRY);
@@ -69,8 +73,8 @@ public class NIOClient {
      * @param host      主机
      * @param port      端口号
      * @param retry     剩余重连次数
-     *
-     * 通常情况下,连接建立失败不会立即重新连接,而是会通过一个"指数退避"的方式,比如每隔1、2、4、16秒，以2的幂次来建立连接
+     *                  <p>
+     *                  通常情况下,连接建立失败不会立即重新连接,而是会通过一个"指数退避"的方式,比如每隔1、2、4、16秒，以2的幂次来建立连接
      */
     private static void connect(Bootstrap bootstrap, String host, int port, int retry) {
         bootstrap.connect(host, port).addListener(future -> {
@@ -85,7 +89,7 @@ public class NIOClient {
                 System.out.println("连接失败,开始重新连接!");
 
                 // bootstrap.config().group() 返回配置的线程模型
-                bootstrap.config().group().schedule(() -> connect(bootstrap, host, port, retry-1),delay, TimeUnit.SECONDS);
+                bootstrap.config().group().schedule(() -> connect(bootstrap, host, port, retry - 1), delay, TimeUnit.SECONDS);
 
             }
         });
