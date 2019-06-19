@@ -1,3 +1,8 @@
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
+
+import java.nio.charset.Charset;
+
 /**
  * @author WangLe
  * @date 2019/6/18 15:05
@@ -6,13 +11,18 @@
 public class Test {
 
     public static void main(String[] args) {
-        String s = "85092859034578028508350284983750398503860938503759873953895r3698534";
-        char c = statMostRateChar(s);
-        System.out.println(c);
+//        String s = "85092859034578028508350284983750398503860938503759873953895r3698534";
+//        char c = statMostRateChar(s);
+//        System.out.println(c);
+
+//        test2();
+
+        test3();
     }
 
     /**
      * 表驱动统计字符串中首次出现频率最高的数字
+     *
      * @param str
      * @return
      */
@@ -54,6 +64,16 @@ public class Test {
         } else {
             return '\0';
         }
+    }
+
+    private static void test2() {
+        System.out.println("Hello,我是王乐,我的英文名是Lee!".getBytes(Charset.forName("utf-8")).length);
+    }
+
+    private static void test3() {
+        ByteBuf byteBuf = ByteBufAllocator.DEFAULT.ioBuffer();
+        byteBuf.writeInt(41);
+        System.out.println(byteBuf.readableBytes());
     }
 
 }

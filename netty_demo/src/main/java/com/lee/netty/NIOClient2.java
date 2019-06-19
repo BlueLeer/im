@@ -1,11 +1,14 @@
 package com.lee.netty;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufAllocator;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.AttributeKey;
 
+import java.nio.charset.Charset;
 import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
@@ -17,7 +20,7 @@ import java.util.concurrent.TimeUnit;
  * 在开始组装响应之前的所有的逻辑，都可以放置在 ChannelInboundHandler 里处理，它的一个最重要的方法就是 channelRead()
  * 可以将 ChannelInboundHandler 的逻辑处理过程与 TCP 的七层协议的解析联系起来，收到的数据一层层从物理层上升到我们的应用层
  */
-public class NIOClient {
+public class NIOClient2 {
 
     /**
      * 最大重连次数--5次
@@ -36,6 +39,7 @@ public class NIOClient {
                 .channel(NioSocketChannel.class)
                 // 设置连接超时时间
                 .option(ChannelOption.CONNECT_TIMEOUT_MILLIS, 1000)
+                .option(ChannelOption.TCP_NODELAY, true)
                 // 是否开启TCP底层心跳机制
                 .option(ChannelOption.SO_KEEPALIVE, true)
                 // IO处理逻辑
@@ -43,11 +47,6 @@ public class NIOClient {
                     @Override
                     protected void initChannel(NioSocketChannel channel) throws Exception {
                         channel.pipeline().addLast(new ChannelInboundHandlerA());
-                        channel.pipeline().addLast(new ChannelInboundHandlerB());
-                        channel.pipeline().addLast(new ChannelInboundHandlerC());
-                        channel.pipeline().addLast(new ChannelOutBoundHandlerA());
-                        channel.pipeline().addLast(new ChannelOutBoundHandlerB());
-                        channel.pipeline().addLast(new ChannelOutBoundHandlerC());
                     }
                 });
         connect(bootstrap, "127.0.0.1", 8000, MAX_RETRY);
@@ -56,53 +55,24 @@ public class NIOClient {
 
     static class ChannelInboundHandlerA extends ChannelInboundHandlerAdapter {
         @Override
-        public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-            System.out.println("ChannelInboundHandlerA:channelRead");
-            // 传播到下一个ChannelInboundHandler
-            super.channelRead(ctx, msg);
+        public void channelActive(ChannelHandlerContext ctx) throws Exception {
+            for (int i = 0; i < 100; i++) {
+                ctx.channel().writeAndFlush(getByteBuf(ctx));
+            }
         }
-    }
 
-    static class ChannelInboundHandlerB extends ChannelInboundHandlerAdapter {
-        @Override
-        public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-            System.out.println("ChannelInboundHandlerB:channelRead");
-            //
-            ctx.channel().writeAndFlush(msg);
-//            super.channelRead(ctx, msg);
-        }
-    }
+        private ByteBuf getByteBuf(ChannelHandlerContext ctx) {
+            byte[] bytes = "Hello，我是王乐，我的英文名是Lee！".trim().getBytes(Charset.forName("utf-8"));
+            System.out.println(new String(bytes, Charset.forName("utf-8")));
+            ByteBuf buffer = ctx.alloc().buffer();
+            System.out.println(buffer.readableBytes());
+            buffer.writeInt(bytes.length);
+            System.out.println(buffer.readableBytes());
+            buffer.writeBytes(bytes);
+            System.out.println(buffer.readableBytes());
+            System.out.println("length" + bytes.length);
 
-    static class ChannelInboundHandlerC extends ChannelInboundHandlerAdapter {
-        @Override
-        public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-            System.out.println("ChannelInboundHandlerC:channelRead");
-            ctx.channel().writeAndFlush(msg);
-        }
-    }
-
-
-    static class ChannelOutBoundHandlerA extends ChannelOutboundHandlerAdapter {
-        @Override
-        public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
-            System.out.println("ChannelOutBoundHandlerA:write");
-            super.write(ctx, msg, promise);
-        }
-    }
-
-    static class ChannelOutBoundHandlerB extends ChannelOutboundHandlerAdapter {
-        @Override
-        public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
-            System.out.println("ChannelOutBoundHandlerB:write");
-            super.write(ctx, msg, promise);
-        }
-    }
-
-    static class ChannelOutBoundHandlerC extends ChannelOutboundHandlerAdapter {
-        @Override
-        public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
-            System.out.println("ChannelOutBoundHandlerC:write");
-            super.write(ctx, msg, promise);
+            return buffer;
         }
     }
 

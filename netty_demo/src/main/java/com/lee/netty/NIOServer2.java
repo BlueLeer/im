@@ -9,10 +9,11 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import io.netty.util.Attribute;
 import io.netty.util.AttributeKey;
 
-import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.nio.charset.Charset;
 
 /**
@@ -22,7 +23,7 @@ import java.nio.charset.Charset;
  * <p>
  * 总结:要启动一个Netty的服务端,必须要指定三类属性:线程模型、IO模型、连接数据读写处理逻辑，之后再调用bind()绑定端口即可
  */
-public class NIOServer {
+public class NIOServer2 {
 
     public static void main(String[] args) {
         startSimpleServer();
@@ -49,21 +50,14 @@ public class NIOServer {
                 .childHandler(new ChannelInitializer<NioSocketChannel>() {
                     @Override
                     protected void initChannel(NioSocketChannel channel) throws Exception {
+                        // 加入拆包器
+                        channel.pipeline().addLast(new LengthFieldBasedFrameDecoder(Integer.MAX_VALUE, 0, 4));
                         // 在这里进行数据的读写
-
                         channel.pipeline().addLast(new ChannelInboundHandlerAdapter() {
-//                            @Override
-//                            public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-//                                ByteBuf byteBuf = (ByteBuf) msg;
-//                                System.out.println("服务端读取到的数据: " + byteBuf.toString(Charset.forName("utf-8")));
-//
-//                            }
-
                             @Override
-                            public void channelActive(ChannelHandlerContext ctx) throws Exception {
-                                ByteBuf buffer = ctx.alloc().buffer();
-                                buffer.writeBytes("Hello Client!".getBytes(Charset.forName("utf-8")));
-                                ctx.channel().writeAndFlush(buffer);
+                            public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+                                ByteBuf byteBuf = (ByteBuf) msg;
+                                System.out.println("服务端读取到的数据:" + byteBuf.toString(Charset.forName("utf-8")));
                             }
                         });
 
