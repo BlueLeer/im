@@ -10,7 +10,7 @@ import io.netty.buffer.ByteBuf;
  * @description 包的编解码过程
  */
 public class PacketTransCode {
-    private static final int MAGIC_NUMBER = 0X12345678;
+    public static final int MAGIC_NUMBER = 0X12345678;
 
     private PacketTransCode() {
 

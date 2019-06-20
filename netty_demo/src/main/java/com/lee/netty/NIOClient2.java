@@ -47,6 +47,7 @@ public class NIOClient2 {
                     @Override
                     protected void initChannel(NioSocketChannel channel) throws Exception {
                         channel.pipeline().addLast(new ChannelInboundHandlerA());
+//                        channel.pipeline().addLast(new LifeCyCleTestHandler());
                     }
                 });
         connect(bootstrap, "127.0.0.1", 8000, MAX_RETRY);
@@ -56,23 +57,92 @@ public class NIOClient2 {
     static class ChannelInboundHandlerA extends ChannelInboundHandlerAdapter {
         @Override
         public void channelActive(ChannelHandlerContext ctx) throws Exception {
-            for (int i = 0; i < 100; i++) {
+            System.out.println("channelActive");
+            for (int i = 0; i < 10; i++) {
                 ctx.channel().writeAndFlush(getByteBuf(ctx));
+                System.out.println("发送数据...");
             }
         }
 
         private ByteBuf getByteBuf(ChannelHandlerContext ctx) {
-            byte[] bytes = "Hello，我是王乐，我的英文名是Lee！".trim().getBytes(Charset.forName("utf-8"));
+            String s = "Hello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名" +
+                    "是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英" +
+                    "文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是Lee" +
+                    "Hello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是Lee" +
+                    "Hello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是Lee" +
+                    "Hello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是Lee" +
+                    "Hello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是LeeHello我是王乐我的英文名是Lee";
+            byte[] bytes = s.trim().getBytes(Charset.forName("utf-8"));
             System.out.println(new String(bytes, Charset.forName("utf-8")));
-            ByteBuf buffer = ctx.alloc().buffer();
-            System.out.println(buffer.readableBytes());
+            ByteBuf buffer = ctx.alloc().ioBuffer();
             buffer.writeInt(bytes.length);
-            System.out.println(buffer.readableBytes());
             buffer.writeBytes(bytes);
-            System.out.println(buffer.readableBytes());
-            System.out.println("length" + bytes.length);
 
             return buffer;
+        }
+
+        /**
+         * 表示在当前的channel中,已经成功添加了一个handler处理器
+         * 是这个方法执行以后的回调:ch.pipeline().addLast(new LifeCyCleTestHandler());
+         * @param ctx
+         * @throws Exception
+         */
+        @Override
+        public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
+            System.out.println("handlerAdded");
+            super.handlerAdded(ctx);
+        }
+
+        /**
+         * 也是回调方法,表示当前的channel的所有逻辑处理已经和某个NIO线程建立了绑定关系
+         * @param ctx
+         * @throws Exception
+         */
+        @Override
+        public void channelRegistered(ChannelHandlerContext ctx) throws Exception {
+            System.out.println("channelRegistered");
+            super.channelRegistered(ctx);
+        }
+
+        /**
+         * 有数据可读的时候会回调此方法
+         * @param ctx
+         * @param msg
+         * @throws Exception
+         */
+        @Override
+        public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+            System.out.println("channelRead");
+            super.channelRead(ctx, msg);
+        }
+
+        /**
+         * 服务端每读完一次完整的数据之后,回调该方法,表示数据读取完毕
+         * @param ctx
+         * @throws Exception
+         */
+        @Override
+        public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
+            System.out.println("channelReadComplete");
+            super.channelReadComplete(ctx);
+        }
+
+        @Override
+        public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+            System.out.println("channelInactive");
+            super.channelInactive(ctx);
+        }
+
+        @Override
+        public void channelUnregistered(ChannelHandlerContext ctx) throws Exception {
+            System.out.println("channelUnregistered");
+            super.channelUnregistered(ctx);
+        }
+
+        @Override
+        public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
+            System.out.println("handlerRemoved");
+            super.handlerRemoved(ctx);
         }
     }
 

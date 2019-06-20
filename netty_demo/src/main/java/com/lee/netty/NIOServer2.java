@@ -62,6 +62,8 @@ public class NIOServer2 {
                         });
 
                     }
+
+
                 });
         // 绑定服务端的端口号,接收8000端口的客户端连接
         // serverBootstrap.bind(8000);

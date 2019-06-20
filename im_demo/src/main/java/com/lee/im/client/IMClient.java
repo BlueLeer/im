@@ -1,6 +1,10 @@
 package com.lee.im.client;
 
+import com.lee.im.model.LoginRequestPacket;
 import com.lee.im.model.MessageRequestPacket;
+import com.lee.im.transcoding.MagicFilter;
+import com.lee.im.transcoding.PacketDecoder;
+import com.lee.im.transcoding.PacketEncoder;
 import com.lee.im.transcoding.PacketTransCode;
 import com.lee.im.util.LoginUtil;
 import io.netty.bootstrap.Bootstrap;
@@ -11,8 +15,10 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 
 import java.util.Scanner;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -33,7 +39,15 @@ public class IMClient {
                 .handler(new ChannelInitializer<NioSocketChannel>() {
                     @Override
                     protected void initChannel(NioSocketChannel ch) throws Exception {
-                        ch.pipeline().addLast(new ClientHandler());
+                        // 拆包器
+                        ch.pipeline().addLast(new MagicFilter());
+                        // 解码器
+                        ch.pipeline().addLast(new PacketDecoder());
+                        ch.pipeline().addLast(new LoginResponseHandler());
+                        ch.pipeline().addLast(new MessageResponseHandler());
+                        // 编码器
+                        ch.pipeline().addLast(new PacketEncoder());
+
                     }
                 });
 

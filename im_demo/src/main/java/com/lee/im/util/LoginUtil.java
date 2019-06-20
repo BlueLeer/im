@@ -33,4 +33,8 @@ public class LoginUtil {
             return attr.get() != null;
         }
     }
+
+    public static void bindUser(Channel channel){
+
+    }
 }

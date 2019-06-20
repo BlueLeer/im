@@ -1,5 +1,6 @@
 package com.lee.im.server;
 
+import com.lee.im.transcoding.MagicFilter;
 import com.lee.im.transcoding.PacketDecoder;
 import com.lee.im.transcoding.PacketEncoder;
 import io.netty.bootstrap.ServerBootstrap;
@@ -26,8 +27,13 @@ public class IMServer {
                 .childHandler(new ChannelInitializer<NioSocketChannel>() {
                     @Override
                     protected void initChannel(NioSocketChannel channel) throws Exception {
+                        // 统计客户端的连接数
+                        channel.pipeline().addLast(new ConnectionCounterHandler());
+                        channel.pipeline().addLast(new MagicFilter());
                         channel.pipeline().addLast(new PacketDecoder());
                         channel.pipeline().addLast(new LoginRequestHandler());
+                        // 新增用户认证Handler
+                        channel.pipeline().addLast(new AuthHandler());
                         channel.pipeline().addLast(new MessageRequestHandler());
                         channel.pipeline().addLast(new PacketEncoder());
                     }

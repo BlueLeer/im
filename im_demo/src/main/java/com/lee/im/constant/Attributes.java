@@ -9,4 +9,6 @@ import io.netty.util.AttributeKey;
  */
 public final class Attributes {
     public static final AttributeKey<Boolean> LOGIN = AttributeKey.newInstance("login");
+    public static final AttributeKey<Boolean> USERNAME = AttributeKey.newInstance("username");
+
 }
