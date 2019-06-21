@@ -48,7 +48,7 @@ public class ClientHandler extends ChannelInboundHandlerAdapter {
             System.out.println("服务端返回的登录状态码:" + responsePacket.getCode());
             System.out.println("服务端返回的登录消息内容:" + responsePacket.getMsg());
 
-            if (responsePacket.getCode().equals("success")) {
+            if ("success".equals(responsePacket.getCode())) {
                 LoginUtil.markAsLogin(ctx.channel());
             }
         }

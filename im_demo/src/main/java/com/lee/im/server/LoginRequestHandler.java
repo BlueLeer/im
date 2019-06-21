@@ -2,7 +2,9 @@ package com.lee.im.server;
 
 import com.lee.im.model.LoginRequestPacket;
 import com.lee.im.model.LoginResponsePacket;
+import com.lee.im.model.Session;
 import com.lee.im.util.LoginUtil;
+import com.lee.im.util.SessionUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
@@ -21,14 +23,21 @@ public class LoginRequestHandler extends SimpleChannelInboundHandler<LoginReques
         // 登录逻辑
         LoginResponsePacket responsePacket = login(msg);
         // 登录成功,服务端也必须要标记为登录成功
-        if (responsePacket.getCode().equals("success")) {
-            LoginUtil.markAsLogin(ctx.channel());
+        if ("success".equals(responsePacket.getCode())) {
+            markAsLogin(ctx, msg);
             System.out.println("[" + msg.getUsername() + "]登录成功,ID为[" + msg.getUserId() + "]");
         } else {
             System.out.println("[" + msg.getUsername() + "]登录失败,ID为[" + msg.getUserId() + "]");
         }
         // 向客户端写入响应消息,直接写入响应的对象,后面有PacketEncoder进行编码
         ctx.channel().writeAndFlush(responsePacket);
+    }
+
+    private void markAsLogin(ChannelHandlerContext ctx, LoginRequestPacket msg) {
+        Session session = new Session();
+        session.setUserId(msg.getUserId());
+        session.setUsername(msg.getUsername());
+        SessionUtil.bindSession(session, ctx.channel());
     }
 
     private LoginResponsePacket login(LoginRequestPacket msg) {

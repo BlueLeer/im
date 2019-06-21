@@ -86,6 +86,7 @@ public class PacketTransCode {
 
     /**
      * 根据序列化算法的代码获取序列化器
+     *
      * @param serializerAlgorithm
      * @return
      */
@@ -104,6 +105,7 @@ public class PacketTransCode {
 
     /**
      * 根据指令相关的枚举值获取志林对应的类型
+     *
      * @param command
      * @return
      */
@@ -121,6 +123,18 @@ public class PacketTransCode {
                 break;
             case 4:
                 clazz = MessageResponsePacket.class;
+                break;
+            case 5:
+                clazz = LogoutRequestPacket.class;
+                break;
+            case 6:
+                clazz = LogoutResponsePacket.class;
+                break;
+            case 7:
+                clazz = CreateGroupRequestPacket.class;
+                break;
+            case 8:
+                clazz = CreateGroupResponsePacket.class;
                 break;
             default:
                 clazz = null;

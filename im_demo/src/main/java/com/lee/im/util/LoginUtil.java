@@ -10,6 +10,7 @@ import io.netty.util.Attribute;
  * @description
  */
 public class LoginUtil {
+
     /**
      * 标记当前的channel(客户端)的登录状态--已登录
      *
@@ -27,14 +28,16 @@ public class LoginUtil {
      */
     public static boolean isLogin(Channel channel) {
         Attribute<Boolean> attr = channel.attr(Attributes.LOGIN);
-        if (attr == null) {
+        if (attr == null || attr.get() == null) {
             return false;
         } else {
-            return attr.get() != null;
+            return attr.get();
         }
     }
 
-    public static void bindUser(Channel channel){
-
+    public static String getUserId() {
+        int a = (int) (Math.random() * 10000);
+        return a + "";
     }
+
 }

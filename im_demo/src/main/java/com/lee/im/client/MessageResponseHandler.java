@@ -12,6 +12,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 public class MessageResponseHandler extends SimpleChannelInboundHandler<MessageResponsePacket> {
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, MessageResponsePacket msg) throws Exception {
-        System.out.println("message服务端响应为: " + msg.getMessage());
+        String response = msg.getFromUsername() + "[" + msg.getFromUserId() + "]发来消息:" + msg.getMessage();
+        System.out.println(response);
     }
 }

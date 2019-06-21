@@ -1,5 +1,6 @@
 package com.lee.im.constant;
 
+import com.lee.im.model.Session;
 import io.netty.util.AttributeKey;
 
 /**
@@ -10,5 +11,7 @@ import io.netty.util.AttributeKey;
 public final class Attributes {
     public static final AttributeKey<Boolean> LOGIN = AttributeKey.newInstance("login");
     public static final AttributeKey<Boolean> USERNAME = AttributeKey.newInstance("username");
+    public static final AttributeKey<Session> SESSION = AttributeKey.newInstance("session");
+
 
 }

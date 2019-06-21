@@ -35,6 +35,7 @@ public class IMServer {
                         // 新增用户认证Handler
                         channel.pipeline().addLast(new AuthHandler());
                         channel.pipeline().addLast(new MessageRequestHandler());
+                        channel.pipeline().addLast(new LogoutRequestHandler());
                         channel.pipeline().addLast(new PacketEncoder());
                     }
                 });

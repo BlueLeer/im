@@ -27,5 +27,25 @@ public final class Command {
      */
     public static final Byte MESSAGE_RESPONSE = 4;
 
+    /**
+     * 客户端登出请求指令
+     */
+    public static final Byte LOGOUT_REQUEST = 5;
+
+    /**
+     * 客户端登出响应指令
+     */
+    public static final Byte LOGOUT_RESPONSE = 6;
+
+    /**
+     * 客户端创建群聊请求指令
+     */
+    public static final Byte CREATE_GROUP_REQUEST = 7;
+
+    /**
+     * 服务端创建群聊响应指令
+     */
+    public static final Byte CREATE_GROUP_RESPONSE = 8;
+
 
 }

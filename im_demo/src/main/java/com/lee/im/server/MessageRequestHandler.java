@@ -2,6 +2,9 @@ package com.lee.im.server;
 
 import com.lee.im.model.MessageRequestPacket;
 import com.lee.im.model.MessageResponsePacket;
+import com.lee.im.model.Session;
+import com.lee.im.util.SessionUtil;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
@@ -13,14 +16,31 @@ import io.netty.channel.SimpleChannelInboundHandler;
 public class MessageRequestHandler extends SimpleChannelInboundHandler<MessageRequestPacket> {
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, MessageRequestPacket msg) throws Exception {
-        // 直接写入响应的对象,后面有PacketEncoder进行编码
-        ctx.channel().writeAndFlush(receiveMessage(msg));
+        receiveMessage(msg, ctx.channel());
     }
 
-    private MessageResponsePacket receiveMessage(MessageRequestPacket msg) {
-        System.out.println("客户端发来消息: " + msg.getMessage());
+    private void receiveMessage(MessageRequestPacket msg, Channel channel) {
+        Session session = SessionUtil.getSession(channel);
+        String user = session.getUsername() + "[" + session.getUserId() + "]";
+        System.out.println(user + "发来消息: " + msg.getMessage());
+
         MessageResponsePacket packet = new MessageResponsePacket();
-        packet.setMessage("收到客户端发来的消息,消息长度为: " + msg.getMessage().trim().length());
-        return packet;
+
+        // 1. 先拿到消息发送方的会话信息
+        Session from = SessionUtil.getSession(channel);
+
+        // 2. 根据消息发送方发来的消息构造要发送的消息
+        packet.setFromUserId(from.getUserId());
+        packet.setFromUsername(from.getUsername());
+        packet.setMessage(msg.getMessage());
+
+        // 3.拿到消息接收方的channel
+        Channel to = SessionUtil.getChannel(msg.getToUserId());
+        if (null == to || !SessionUtil.isLogin(to)) {
+            // 构建响应信息
+        } else {
+            // 构建响应信息
+            to.writeAndFlush(packet);
+        }
     }
 }

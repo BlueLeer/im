@@ -1,6 +1,10 @@
 package com.lee.im.client;
 
+import com.lee.im.console.ConsoleCommand;
+import com.lee.im.console.ConsoleCommandManager;
+import com.lee.im.constant.ConsoleCommandConstant;
 import com.lee.im.model.LoginRequestPacket;
+import com.lee.im.model.LogoutRequestPacket;
 import com.lee.im.model.MessageRequestPacket;
 import com.lee.im.transcoding.MagicFilter;
 import com.lee.im.transcoding.PacketDecoder;
@@ -45,6 +49,8 @@ public class IMClient {
                         ch.pipeline().addLast(new PacketDecoder());
                         ch.pipeline().addLast(new LoginResponseHandler());
                         ch.pipeline().addLast(new MessageResponseHandler());
+                        ch.pipeline().addLast(new LogoutResponseHandler());
+
                         // 编码器
                         ch.pipeline().addLast(new PacketEncoder());
 
@@ -78,20 +84,46 @@ public class IMClient {
     }
 
     private static void startConsoleThread(Channel channel) {
+        Scanner scanner = new Scanner(System.in);
+        ConsoleCommandManager commandManager = ConsoleCommandManager.getInstance();
         new Thread(() -> {
             while (!Thread.interrupted()) {
                 if (LoginUtil.isLogin(channel)) {
-                    System.out.println("请输入消息发送至服务端: ");
-                    Scanner scanner = new Scanner(System.in);
-                    String s = scanner.nextLine();
-
-                    // 组装发送消息的对象
-                    MessageRequestPacket requestPacket = new MessageRequestPacket();
-                    requestPacket.setMessage(s);
-                    ByteBuf encode = PacketTransCode.getInstance().encode(channel.alloc().ioBuffer(), requestPacket);
-                    channel.writeAndFlush(encode);
+                    commandManager.executeCommand(scanner, channel);
+                } else {
+                    ConsoleCommand consoleCommand = ConsoleCommandManager.getConsoleCommand(ConsoleCommandConstant.LOGIN);
+                    consoleCommand.exec(scanner, channel);
+                    // 登录指令,休眠1秒钟
+                    waitForLogin();
                 }
             }
         }).start();
+    }
+
+    private static boolean ifLogout(String msg, Channel channel) {
+        if ("exit".equals(msg.trim())) {
+            LogoutRequestPacket packet = new LogoutRequestPacket();
+            channel.writeAndFlush(packet);
+            waitForLogout();
+            return true;
+        }
+
+        return false;
+    }
+
+    private static void waitForLogin() {
+        try {
+            TimeUnit.SECONDS.sleep(1);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void waitForLogout() {
+        try {
+            TimeUnit.SECONDS.sleep(2);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }

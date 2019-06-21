@@ -9,6 +9,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 
 import java.util.Scanner;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.IntStream;
 
 /**
@@ -19,7 +20,7 @@ import java.util.stream.IntStream;
 public class LoginResponseHandler extends SimpleChannelInboundHandler<LoginResponsePacket> {
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, LoginResponsePacket msg) throws Exception {
-        if (msg.getCode().equals("success")) {
+        if ("success".equals(msg.getCode())) {
             LoginUtil.markAsLogin(ctx.channel());
             System.out.println("[登录成功]");
         }
@@ -31,17 +32,17 @@ public class LoginResponseHandler extends SimpleChannelInboundHandler<LoginRespo
         Scanner scanner = new Scanner(System.in);
         String username = scanner.nextLine();
         // 创建登陆对象
-        LoginRequestPacket packet = new LoginRequestPacket();
-        packet.setUserId(getUserId());
-        packet.setUsername(username);
-        packet.setPassword("123");
 
-        // 编码
-        PacketTransCode serializer = PacketTransCode.getInstance();
-        ByteBuf encode = serializer.encode(ctx.alloc().ioBuffer(), packet);
 
-        // 发送登陆数据
-        ctx.writeAndFlush(encode);
+        waitForLogin();
+    }
+
+    private void waitForLogin() {
+        try {
+            TimeUnit.SECONDS.sleep(2);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -49,13 +50,4 @@ public class LoginResponseHandler extends SimpleChannelInboundHandler<LoginRespo
         System.out.println("客户端被关闭!");
     }
 
-    /**
-     * 随机生成四位数的用户ID
-     *
-     * @return
-     */
-    private String getUserId() {
-        int asInt = IntStream.range(1000, 9999).findAny().getAsInt();
-        return String.valueOf(asInt);
-    }
 }
