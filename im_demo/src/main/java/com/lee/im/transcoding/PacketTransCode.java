@@ -136,6 +136,12 @@ public class PacketTransCode {
             case 8:
                 clazz = CreateGroupResponsePacket.class;
                 break;
+            case 9:
+                clazz = HeartBeatRequestPacket.class;
+                break;
+            case 10:
+                clazz = HeartBeatResponsePacket.class;
+                break;
             default:
                 clazz = null;
                 break;

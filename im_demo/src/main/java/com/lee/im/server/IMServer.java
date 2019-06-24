@@ -27,11 +27,14 @@ public class IMServer {
                 .childHandler(new ChannelInitializer<NioSocketChannel>() {
                     @Override
                     protected void initChannel(NioSocketChannel channel) throws Exception {
+                        // 空闲检测
+                        channel.pipeline().addLast(new IMIdleStateHandler());
                         // 统计客户端的连接数
                         channel.pipeline().addLast(new ConnectionCounterHandler());
                         channel.pipeline().addLast(new MagicFilter());
                         channel.pipeline().addLast(new PacketDecoder());
                         channel.pipeline().addLast(new LoginRequestHandler());
+                        channel.pipeline().addLast(new HeartBeatRequestHandler());
                         // 新增用户认证Handler
                         channel.pipeline().addLast(new AuthHandler());
                         channel.pipeline().addLast(new MessageRequestHandler());

@@ -22,7 +22,7 @@ public class MessageRequestHandler extends SimpleChannelInboundHandler<MessageRe
     private void receiveMessage(MessageRequestPacket msg, Channel channel) {
         Session session = SessionUtil.getSession(channel);
         String user = session.getUsername() + "[" + session.getUserId() + "]";
-        System.out.println(user + "发来消息: " + msg.getMessage());
+        System.out.println(user + "发来消息: " + msg.getMessage() + ",发送给:[" + msg.getToUserId());
 
         MessageResponsePacket packet = new MessageResponsePacket();
 

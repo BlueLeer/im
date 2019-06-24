@@ -43,6 +43,8 @@ public class LoginRequestHandler extends SimpleChannelInboundHandler<LoginReques
     private LoginResponsePacket login(LoginRequestPacket msg) {
         LoginResponsePacket responsePacket = new LoginResponsePacket();
         if (validate(msg)) {
+            responsePacket.setUserId(msg.getUserId());
+            responsePacket.setUsername(msg.getUsername());
             responsePacket.setCode("success");
             responsePacket.setMsg("登陆成功");
 

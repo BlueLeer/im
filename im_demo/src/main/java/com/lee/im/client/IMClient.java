@@ -6,11 +6,14 @@ import com.lee.im.constant.ConsoleCommandConstant;
 import com.lee.im.model.LoginRequestPacket;
 import com.lee.im.model.LogoutRequestPacket;
 import com.lee.im.model.MessageRequestPacket;
+import com.lee.im.server.HeartBeatRequestHandler;
+import com.lee.im.server.IMIdleStateHandler;
 import com.lee.im.transcoding.MagicFilter;
 import com.lee.im.transcoding.PacketDecoder;
 import com.lee.im.transcoding.PacketEncoder;
 import com.lee.im.transcoding.PacketTransCode;
 import com.lee.im.util.LoginUtil;
+import com.lee.im.util.SessionUtil;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.Channel;
@@ -43,7 +46,9 @@ public class IMClient {
                 .handler(new ChannelInitializer<NioSocketChannel>() {
                     @Override
                     protected void initChannel(NioSocketChannel ch) throws Exception {
-                        // 拆包器
+                        // 空闲检测
+                        ch.pipeline().addLast(new IMIdleStateHandler());
+                        // 拆包器,过滤掉非本协议的连接
                         ch.pipeline().addLast(new MagicFilter());
                         // 解码器
                         ch.pipeline().addLast(new PacketDecoder());
@@ -53,6 +58,9 @@ public class IMClient {
 
                         // 编码器
                         ch.pipeline().addLast(new PacketEncoder());
+
+                        // 心跳定时检测器
+                        ch.pipeline().addLast(new HeartBeatTimeHandler());
 
                     }
                 });
@@ -86,44 +94,17 @@ public class IMClient {
     private static void startConsoleThread(Channel channel) {
         Scanner scanner = new Scanner(System.in);
         ConsoleCommandManager commandManager = ConsoleCommandManager.getInstance();
+
         new Thread(() -> {
             while (!Thread.interrupted()) {
-                if (LoginUtil.isLogin(channel)) {
+                if (SessionUtil.isLogin(channel)) {
                     commandManager.executeCommand(scanner, channel);
                 } else {
                     ConsoleCommand consoleCommand = ConsoleCommandManager.getConsoleCommand(ConsoleCommandConstant.LOGIN);
                     consoleCommand.exec(scanner, channel);
-                    // 登录指令,休眠1秒钟
-                    waitForLogin();
                 }
             }
         }).start();
     }
 
-    private static boolean ifLogout(String msg, Channel channel) {
-        if ("exit".equals(msg.trim())) {
-            LogoutRequestPacket packet = new LogoutRequestPacket();
-            channel.writeAndFlush(packet);
-            waitForLogout();
-            return true;
-        }
-
-        return false;
-    }
-
-    private static void waitForLogin() {
-        try {
-            TimeUnit.SECONDS.sleep(1);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static void waitForLogout() {
-        try {
-            TimeUnit.SECONDS.sleep(2);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
 }
